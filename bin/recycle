@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+set -e
+
+recycle() {
+
+ RED='\033[0;31m'
+ GREEN='\033[0;32m'
+
+ if [ "$1" == "" ]; then
+   echo -e "${GREEN}Usage: recycle <lock-name>"
+   return
+ fi
+
+ pushd ~/workspace/kubo-locks
+ git pull
+
+ local lock
+ lock=$(find . -type f -name \*"$1"\* | grep claimed)
+
+ if [ "1" != "$(echo "$lock" | wc -w | tr -d '[:space:]')" ]; then
+    echo -e "${RED}Found more (or less) than one matching lock:\n$lock"
+   return
+ fi
+ if grep unclaimed <<< "$lock" > /dev/null; then
+   echo $(basename "$lock") is already unclaimed! 1>&2
+   return
+ fi
+ git mv "$lock" "${lock/\/claimed/-lifecycle\/unclaimed}"
+ git ci -m "Unclaim $lock"
+ git push
+ popd
+
+}
+
+recycle "$1"
