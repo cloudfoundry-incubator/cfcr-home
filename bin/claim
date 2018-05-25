@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+set -e
+
+claim() {
+
+ RED='\033[0;31m'
+ GREEN='\033[0;32m'
+
+ if [ "$1" == "" ]; then
+   echo -e "${GREEN}Usage: claim <lock-name>"
+   return
+ fi
+
+ pushd ~/workspace/kubo-locks
+ git pull
+
+ local lock
+ lock=$(find . -type f -name \*"$1"\* | grep claim)
+ if [ "1" != "$(echo "$lock" | wc -w | tr -d '[:space:]')" ]; then
+   echo -e "${RED}Found more (or less) than one matching lock:\n$lock"
+   return
+ fi
+ if ! grep unclaimed <<< "$lock" > /dev/null; then
+   echo $(basename "$lock") is already claimed! 1>&2
+   return
+ fi
+ git mv "$lock" "${lock/unclaimed/claimed}"
+ git ci -m "claim $lock"
+ git push
+ popd
+
+}
+
+claim "$1"

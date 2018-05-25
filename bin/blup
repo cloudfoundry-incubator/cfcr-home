@@ -1,0 +1,134 @@
+#!/bin/bash
+set -euo pipefail
+
+state_dir=~/workspace/deployments/bosh-lite && mkdir -p "$state_dir"
+bosh_deployment=~/workspace/bosh-deployment
+
+export CPI_external_ip=192.168.50.6
+export CPI_internal_ip=192.168.50.6
+export CPI_internal_gw=192.168.50.1
+export CPI_internal_cidr=192.168.50.0/24
+export CPI_dns_recursor_ip=192.168.50.6
+export CPI_outbound_network_name=NatNetwork
+
+print_usage() {
+  echo
+  echo "Manages a bosh lite director running locally on virtualbox"
+  echo
+  echo "usage: $0 <up|down|suspend|start>"
+  echo
+  exit 1
+}
+
+update() {
+  pushd $bosh_deployment
+    git stash || true
+    git pull --rebase
+    git stash pop || true
+  popd
+}
+
+create() {
+  log "deploying director after updating bosh-deployment ..."
+  update
+  unset BOSH_USER
+  bosh create-env \
+    -v director_name=lite \
+    --vars-store $state_dir/bosh-vars.yml \
+    --state $state_dir/bosh-state.json \
+    -o $bosh_deployment/virtualbox/cpi.yml \
+    -o $bosh_deployment/jumpbox-user.yml \
+    -o $bosh_deployment/bosh-lite.yml \
+    -o $bosh_deployment/bosh-lite-runc.yml \
+    -o $bosh_deployment/local-dns.yml \
+    -o $bosh_deployment/uaa.yml \
+    -o $bosh_deployment/virtualbox/outbound-network.yml \
+    -o $bosh_deployment/credhub.yml \
+    --vars-env=CPI \
+    $bosh_deployment/bosh.yml
+
+
+
+rm -f  ${state_dir}/id_rsa_jumpbox || true
+bosh int ${state_dir}/bosh-vars.yml --path /jumpbox_ssh/private_key > ${state_dir}/id_rsa_jumpbox
+chmod 400 ${state_dir}/id_rsa_jumpbox
+
+
+   log "writing bosh-env sourceable file..."
+cat <<EOF >$state_dir/bosh-env
+unset BOSH_ALL_PROXY
+export BOSH_CLIENT=admin
+export BOSH_CLIENT_SECRET=\$(bosh int ${state_dir}/bosh-vars.yml --path /admin_password)
+export BOSH_CA_CERT=\$(bosh int ${state_dir}/bosh-vars.yml --path /director_ssl/ca)
+export BOSH_ENVIRONMENT=192.168.50.6
+export BOSH_GW_USER=jumpbox
+export BOSH_GW_HOST=192.168.50.6
+export BOSH_GW_PRIVATE_KEY=${state_dir}/id_rsa_jumpbox
+export CREDHUB_SERVER="https://${CPI_external_ip}:8844"
+export CREDHUB_CLIENT=credhub-admin
+export CREDHUB_SECRET=\$(bosh int ${state_dir}/bosh-vars.yml --path /credhub_admin_client_secret)
+export CREDHUB_CA_CERT=\$(bosh int ${state_dir}/bosh-vars.yml --path /uaa_ssl/ca;bosh int ${state_dir}/bosh-vars.yml --path /credhub_tls/ca)
+#credhub login
+EOF
+
+  log "source ${state_dir}/bosh-env"
+  log "bosh upload-stemcell https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-trusty-go_agent"
+  log "ssh jumpbox@192.168.50.6 -i ${state_dir}/id_rsa_jumpbox"
+  log "sudo route add -net 10.244.0.0/16 192.168.50.6"
+
+}
+
+destroy() {
+  log "deleting director VM..."
+  unset BOSH_USER
+  bosh delete-env  $bosh_deployment/bosh.yml \
+    --vars-store $state_dir/bosh-vars.yml \
+    --state $state_dir/bosh-state.json \
+    -o $bosh_deployment/virtualbox/cpi.yml \
+    -o $bosh_deployment/virtualbox/outbound-network.yml \
+    -o $bosh_deployment/bosh-lite.yml \
+    -o $bosh_deployment/bosh-lite-runc.yml \
+    -o $bosh_deployment/jumpbox-user.yml \
+    -v director_name="Bosh Lite Director" \
+    -v internal_ip=192.168.50.6 \
+    -v internal_gw=192.168.50.1 \
+    -v internal_cidr=192.168.50.0/24 \
+    -v outbound_network_name=NatNetwork
+}
+
+suspend() {
+  vboxmanage controlvm $(bosh int $state_dir/bosh-state.json --path /current_vm_cid) savestate
+}
+
+start() {
+  vboxmanage startvm $(bosh int $state_dir/bosh-state.json --path /current_vm_cid) --type headless
+}
+
+log() {
+  printf "\n"
+  echo "$1"
+  printf "\n"
+}
+
+# avoids failing because of "set -u" when no args are passed
+if [ "$#" -eq 0 ]; then
+  print_usage
+fi
+
+case "$1" in
+  up)
+    create
+    ;;
+  down)
+    destroy
+    ;;
+  suspend)
+    suspend
+    ;;
+  start)
+    start
+    ;;
+  *)
+    print_usage
+    ;;
+esac

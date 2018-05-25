@@ -1,0 +1,81 @@
+#!/bin/bash
+
+set -euo pipefail
+
+print_usage() {
+  echo
+  echo "Sets up symlinks and env vars to run ci scripts locally for kubo-ci scripts"
+  echo "Use the 'pks' option for pks ci scripts. Default is CFCR"
+  echo
+  echo "Usage: $(basename "$0") <kubo-lock-name> <gs-creds-version> [optional: 'pks']"
+  echo "e.g $(basename "$0") gcp-harp 1517573591959608"
+  echo
+}
+
+make_environment() {
+
+  local metadata=$(find "${workspace}"/kubo-locks -name "*${1}" | grep claimed)
+
+  if [ "${metadata}" == "" ]; then
+    echo "Metadata file ${1} not found"
+    exit 1
+  fi
+
+  mkdir -p "${env_home}"
+  [ ! -e "${env_home}/git-kubo-ci" ] && ln -f -s "${workspace}/kubo-ci" "${env_home}/git-kubo-ci"
+  [ ! -e "${env_home}/git-kubo-deployment" ] && ln -f -s "${workspace}/kubo-deployment" "${env_home}/git-kubo-deployment"
+  [ ! -e "${env_home}/git-kubo-release" ] && ln -f -s "${workspace}/kubo-release" "${env_home}/git-kubo-release"
+  mkdir -p "${env_home}/bosh-creds"
+  ln -f -s "${env_home}/bosh-creds" "${env_home}/gcs-bosh-creds"
+  mkdir -p "${env_home}/kubo-lock"
+  mkdir -p "${env_home}/environment"
+
+  echo "${1}" > "${env_home}/kubo-lock/name"
+  cp "${metadata}" "${env_home}/kubo-lock/metadata"
+  cp "${metadata}" "${env_home}/environment/director.yml"
+  gsutil cp "${2}" "${env_home}/bosh-creds/creds.yml"
+  cp "${env_home}/bosh-creds/creds.yml" "${env_home}/environment/creds.yml"
+
+}
+
+alias_and_login() {
+
+  BOSH_ENV=${env_home}/environment
+  source "${env_home}"/git-kubo-deployment/bin/set_bosh_environment
+  "${env_home}"/git-kubo-deployment/bin/set_bosh_alias "${BOSH_ENV}"
+  client_secret=$(bosh int "${env_home}"/gcs-bosh-creds/creds.yml --path=/admin_password)
+
+  echo "Run the following command to login"
+  echo "Admin Password : ${client_secret}"
+  echo "bosh -e environment login"
+
+}
+
+main() {
+
+  if [ $# -lt 2 ]; then
+    print_usage
+    exit 1
+  fi
+
+  local workspace=~/workspace
+  local env_root="/tmp"
+  local env_home="${env_root}/${1}"
+  local gcs_url="${2}"
+  local store_location="kubo"
+
+  if [ $# -gt 2 ] && [ ! -z ${3} ]; then
+    store_location="pks"
+  fi
+
+  readonly GCS_BASE_URL="gs://${store_location}-pipeline-store/bosh/creds.yml#"
+  if [[ gcs_url != "${GCS_BASE_URL}*" ]]; then
+   gcs_url="${GCS_BASE_URL}${gcs_url}"
+  fi
+
+  make_environment "${1}" "${gcs_url}"
+  alias_and_login
+  cd ${env_home}
+}
+
+main "$@"

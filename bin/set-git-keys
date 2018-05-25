@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -e
+
+LASTPASSEMAIL=$1
+HOURS=$2
+
+if [ -z $HOURS ]; then
+  CURRENT_HOUR=`date +%H | sed 's/^0//'`
+  HOURS=`expr 17 - $CURRENT_HOUR`
+  echo "Hours: $HOURS"
+fi
+
+if [ -n "$LASTPASSEMAIL" ]; then
+  if [[ `lpass status` != *"$LASTPASSEMAIL"* ]]; then
+    lpass login $LASTPASSEMAIL
+  fi
+
+  /usr/bin/ssh-add -D
+  lpass show --notes 'ProductivityTools/id_rsa' | /usr/bin/ssh-add -t ${HOURS}H -
+
+  exit 0
+fi
+echo "[USAGE]: $0 [lastpassemail] [HOURS]"
+exit 1
+

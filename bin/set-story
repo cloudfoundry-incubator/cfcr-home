@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+
+set -e
+
+story_id="$1"
+
+display_help() {
+  echo "Usage: set-story [story ID]"
+  echo ""
+  echo "This script will template all git commit messages with a story ID."
+  echo "Unfortunately, bash requires that you escape the '#' character. You can"
+  echo "delete it, escape with '\', or wrap in quotes."
+  echo ""
+  echo "set-story 139175457"
+  echo "set-story \#139175457"
+  echo "set-story \"#139175457\""
+  exit 1
+}
+
+if [[ -z $story_id ]] || [[ $story_id = "help" ]]; then
+  display_help
+fi
+
+if [[ "$story_id" = \#* ]]; then
+  story_id=${story_id:1:9}
+fi
+
+echo "" > ~/.gitmessage
+echo "" >> ~/.gitmessage
+echo "[#${story_id}]" >> ~/.gitmessage
+
+echo Current story set to \#"$story_id"
+
