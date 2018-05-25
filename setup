@@ -1,0 +1,153 @@
+#!/bin/bash
+set -eu
+
+main() {
+  pushd "$( dirname "${BASH_SOURCE[0]}" )" > /dev/null
+    ensure_brew_exists
+    update_brew_things
+    set_git_authors
+    set_git_config
+    set_bash_profile
+    install_cred_alert
+    install_local_scripts
+    install_ginkgo
+    install_counterfeiter
+    install_tmux_config
+    update_gcloud_components
+    update_luanvim
+
+  popd > /dev/null
+  echo "💾   All done. Enjoy! ⭐️"
+}
+
+ensure_brew_exists() {
+  echo "Ensuring brew exists..."
+  if [[ ! -x /usr/local/bin/brew ]] ; then
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  fi
+}
+
+update_brew_things() {
+  echo "Updating brew things..."
+  brew bundle cleanup --force
+  brew bundle
+  brew update
+  brew upgrade
+}
+
+set_git_authors() {
+  if [[ ! -f "${HOME}"/.git-authors ]]; then
+    ln -s "${PWD}/git-authors" "${HOME}/.git-authors"
+  fi
+}
+
+set_git_config() {
+  echo "Ensuring git configs are set up..."
+
+  write_git_config_header
+
+  cp gitconfig ~/.gitconfig-shared
+  cp gitignore_global ~/.gitignore_global
+}
+
+write_git_config_header() {
+if ! grep --quiet "path=${HOME}/.gitconfig-shared" "$HOME/.gitconfig"; then
+
+cat << EOF >> "$HOME/.gitconfig"
+[include]
+  path=${HOME}/.gitconfig-shared
+EOF
+
+fi
+}
+
+set_bash_profile() {
+  echo "Setting bash profile"
+  cp bash_profile ~/.bash_profile
+  cp inputrc ~/.inputrc
+  cp bash_aliases ~/.bash_aliases
+  if [[ ! -f /usr/local/bin/bosh-cli ]]; then
+    ln -s /usr/local/bin/bosh /usr/local/bin/bosh-cli
+  fi
+}
+
+update_luanvim() {
+  echo "Ensuring that we have neovim python plugins"
+  pip3 install --upgrade neovim
+
+  echo "Updating luanvim..."
+  if [[ ! -d "${HOME}/.vim" ]] ; then
+    git clone https://github.com/luan/vimfiles.git ~/.vim
+  fi
+  (
+    cd "${HOME}/.vim"
+    git checkout master
+    git pull -r
+    ./update
+  )
+
+  cp vimrc.local ~/.vimrc.local
+}
+
+install_cred_alert() {
+  if ! curl -f "https://s3.amazonaws.com/cred-alert/cli/current-release/cred-alert-cli_darwin" > "/usr/local/bin/cred-alert-cli"; then
+    echo -n "Failed to get the most recent version of the cred-alert-cli, continuing..."
+  fi
+
+  chmod +x "/usr/local/bin/cred-alert-cli"
+
+  echo "Getting last version of git-hooks"
+  if [[ -d "$HOME/workspace/git-hooks-core" ]]; then
+    pushd "$HOME/workspace/git-hooks-core" > /dev/null
+    git pull
+    popd > /dev/null
+  else
+    git clone https://github.com/pivotal-cf/git-hooks-core "$HOME/workspace/git-hooks-core"
+  fi
+}
+
+install_local_scripts() {
+  echo "Installing local scripts:..."
+  local_scripts_path="${HOME}"/.local
+
+  if [[ -d "${local_scripts_path}" ]]; then
+    rm -rf "${local_scripts_path}"
+  fi
+
+  mkdir -p "${local_scripts_path}"
+
+  ln -svnfF "$HOME/workspace/cfcr-home/bin/" "${local_scripts_path}"
+}
+
+install_git_subrepo() {
+  rm -rf "$HOME/.git-subrepo"
+  git clone https://github.com/ingydotnet/git-subrepo "$HOME/.git-subrepo"
+  echo "source ${HOME}/.git-subrepo/.rc" >> "${HOME}/.bash_profile"
+}
+
+install_ginkgo() {
+  go get -u github.com/onsi/gomega
+  go get -u github.com/onsi/ginkgo/ginkgo
+}
+
+install_counterfeiter() {
+  go get -u github.com/maxbrunsfeld/counterfeiter
+}
+
+install_tmux_config() {
+  cp -r tmux.conf "${HOME}/.tmux.conf"
+
+  if [[ ! -d "${HOME}/.tmux" ]]; then
+    mkdir -p "${HOME}/.tmux/plugins"
+    git clone https://github.com/tmux-plugins/tpm "${HOME}/.tmux/plugins/tpm"
+  fi
+}
+
+update_gcloud_components() {
+  if gcloud info &> /dev/null; then
+    echo "Updating gcloud components"
+    gcloud components update --quiet
+  fi
+}
+
+main

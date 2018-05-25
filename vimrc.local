@@ -1,0 +1,2 @@
+nmap <F2> :NERDTreeToggle<CR>
+nmap // :noh<CR>

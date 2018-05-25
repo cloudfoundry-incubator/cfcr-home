@@ -1,0 +1,88 @@
+[alias]
+  blog = log origin/master... --left-right
+  br = branch
+  ci = duet-commit --verbose
+  cleanup = !git checkout master && git pull && git branch  --merged  master | grep -v 'master$' | xargs  git  branch  -d
+  co = checkout
+  dca = duet-commit --amend --reset-author --verbose
+  di = diff
+  ds = diff --staged
+  fixup = commit --fixup
+  flog = log --pretty=fuller --decorate
+  forget = rm --cached
+  hist = log --pretty=format:'%h %ad | %s%d [%an]' --graph --date=short
+  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+  llog = log --date=local
+  lol = log --graph --decorate --oneline
+  lola = log --graph --decorate --oneline --all
+  pullsubs = submodule update --init --recursive
+  rum = rebase master@{u}
+  squash = commit --squash
+  st = status
+  su = submodule update --init --recursive
+  unstage = reset HEAD
+  wewrotethat = duet-commit --amend --reset-author --verbose
+
+[apply]
+  whitespace = nowarn
+
+[core]
+  pager = /usr/local/opt/git/share/git-core/contrib/diff-highlight/diff-highlight | less
+  editor = /usr/local/bin/nvim
+  excludesfile = ~/.gitignore_global
+  hooksPath = ~/workspace/git-hooks-core
+
+[push]
+  default = current
+
+[color "status"]
+  added = green
+  changed = red
+  untracked = yellow
+
+[color]
+  ui = auto
+
+[diff]
+  wordRegex = [^[:space:]]
+  algorithm = patience
+
+[help]
+  autocorrect = 1
+
+[advice]
+  statusHints = false
+
+[branch]
+  autosetuprebase = always
+
+[fetch]
+  prune = true
+
+[pull]
+  rebase = true
+
+[rebase]
+  autostash = true
+
+[log]
+  decorate = true
+
+[format]
+  pretty = oneline
+
+[rerere]
+  enabled = true
+
+[http "https://gopkg.in"]
+  followRedirects = true
+
+[commit]
+  verbose = true
+  template = ~/.gitmessage
+
+[merge]
+  conflictstyle = diff3
+
+[url "git@github.com:"]
+  pushInsteadOf = https://github.com/

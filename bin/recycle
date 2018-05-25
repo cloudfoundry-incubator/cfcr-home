@@ -26,7 +26,7 @@ recycle() {
    echo $(basename "$lock") is already unclaimed! 1>&2
    return
  fi
- git mv "$lock" "${lock/\/claimed/-lifecycle\/unclaimed}"
+ git mv "$lock" "${lock/\/claimed/-lifecycle/unclaimed}"
  git ci -m "Unclaim $lock"
  git push
  popd
