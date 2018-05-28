@@ -72,3 +72,5 @@ _complete_ssh_hosts ()
 
 complete -F _complete_ssh_hosts ssh
 complete -F _complete_ssh_hosts sshuttle
+
+test -e "${HOME}/.iterm2_shell_integration.bash" && source "${HOME}/.iterm2_shell_integration.bash"
