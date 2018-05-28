@@ -49,11 +49,6 @@ eval "$(fasd --init auto)"
 
 eval "$(direnv hook bash)"
 
-## Chruby
-
-source /usr/local/share/chruby/chruby.sh
-source /usr/local/share/chruby/auto.sh
-
 ## Google Cloud SDK
 
 source '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.bash.inc'
