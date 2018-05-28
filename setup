@@ -29,7 +29,7 @@ ensure_brew_exists() {
 
 update_brew_things() {
   echo "Updating brew things..."
-  brew bundle cleanup --force
+  # brew bundle cleanup --force
   brew bundle
   brew update
   brew upgrade
