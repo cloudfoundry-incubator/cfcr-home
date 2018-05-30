@@ -21,6 +21,7 @@ brew 'kubectl'
 brew 'lastpass-cli'
 brew 'neovim'
 brew 'python'
+brew 'python@2'
 brew 'ruby'
 brew 'shellcheck'
 brew 'sshuttle'
@@ -33,6 +34,7 @@ brew 'universal-ctags/universal-ctags/universal-ctags', args: ['HEAD']
 brew 'wget'
 brew 'gnu-sed'
 
+brew 'nodejs' # Luan Vim
 cask 'docker'
 cask 'fly'
 cask 'flycut'
