@@ -1,0 +1,44 @@
+#!/bin/bash
+
+set -eu
+
+START="#### START SYNC JUMPBOX ####"
+END="#### END SYNC JUMPBOX ####"
+main() {
+
+  jumpboxes=$(lpass ls Shared-Kubo/Jumpbox --color=never | awk -F"id: " 'NR>1{print $2}' |  sed 's/.$//')
+
+  if [ ! -f "${HOME}/.ssh/config" ]; then
+    touch "${HOME}/.ssh/config"
+  fi
+
+  cp "${HOME}/.ssh/config" "${HOME}/.ssh/config.bak"
+
+  sed -i '' "/${START}/,/${END}/d" "${HOME}/.ssh/config"
+
+  echo "" >> "${HOME}/.ssh/config"
+  echo "${START}" >> "${HOME}/.ssh/config"
+  echo "" >> "${HOME}/.ssh/config"
+
+  for noteid in ${jumpboxes}; do
+    name=$(lpass show ${noteid} --name --color=never)
+    note=$(lpass show ${noteid} --notes)
+    key=$(bosh int <(echo "${note}") --path=/key)
+    echo "${key}" > "${HOME}/.ssh/${name}.key"
+    chmod 0600 "${HOME}/.ssh/${name}.key"
+
+    echo "# From ${name} - ${noteid}" >> "${HOME}/.ssh/config"
+    echo "Host ${name}" >> "${HOME}/.ssh/config"
+    echo "    HostName $(bosh int <(echo "${note}") --path=/host)" >> "${HOME}/.ssh/config"
+    echo "    IdentityFile ${HOME}/.ssh/${name}.key" >> "${HOME}/.ssh/config"
+    echo "    User $(bosh int <(echo "${note}") --path=/user)" >> "${HOME}/.ssh/config"
+    echo "" >> "${HOME}/.ssh/config"
+  done
+
+  echo "" >> "${HOME}/.ssh/config"
+  echo "${END}" >> "${HOME}/.ssh/config"
+
+}
+
+main "$@"
+
