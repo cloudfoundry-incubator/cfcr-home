@@ -74,6 +74,8 @@ set_bash_profile() {
 update_luanvim() {
   echo "Ensuring that we have neovim python plugins"
   pip3 install --upgrade neovim
+  npm install -g neovim
+  gem install neovim
 
   echo "Updating luanvim..."
   if [[ ! -d "${HOME}/.vim" ]] ; then
