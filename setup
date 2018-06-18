@@ -15,6 +15,7 @@ main() {
     install_tmux_config
     update_gcloud_components
     update_luanvim
+    symlink_neovim_because_it_is_the_future
 
   popd > /dev/null
   echo "💾   All done. Enjoy! ⭐️"
@@ -150,6 +151,10 @@ update_gcloud_components() {
     echo "Updating gcloud components"
     gcloud components update --quiet
   fi
+}
+
+symlink_neovim_because_it_is_the_future() {
+  ln -sf /usr/local/bin/nvim /usr/local/bin/vim
 }
 
 main
