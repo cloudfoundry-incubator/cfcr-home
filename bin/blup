@@ -47,8 +47,6 @@ rm -f  ${state_dir}/id_rsa_jumpbox || true
 bosh int ${state_dir}/bosh-vars.yml --path /jumpbox_ssh/private_key > ${state_dir}/id_rsa_jumpbox
 chmod 400 ${state_dir}/id_rsa_jumpbox
 
-bosh update-cloud-config "$bosh_deployment/warden/cloud-config.yml"
-
    log "writing bosh-env sourceable file..."
 cat <<EOF >$state_dir/bosh-env
 unset BOSH_ALL_PROXY
@@ -70,6 +68,7 @@ EOF
   log "bosh upload-stemcell https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-trusty-go_agent"
   log "ssh jumpbox@192.168.50.6 -i ${state_dir}/id_rsa_jumpbox"
   log "sudo route add -net 10.244.0.0/16 192.168.50.6"
+  log "bosh update-cloud-config $bosh_deployment/warden/cloud-config.yml"
 
 }
 
