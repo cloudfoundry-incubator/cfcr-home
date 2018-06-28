@@ -1,41 +1,9 @@
 #!/bin/bash
 
-set -eu
+RED='\033[0;31m'
+NO_COLOUR='\033[0m'
 
-print_usage() {
-  echo
-  echo "fly hijack a specific concourse build"
-  echo "Usage: $(basename "$0") <job-url>"
-  echo
-}
+echo -e "${RED}flyjack is deprecated, please use 'fly i -u <url>'${NO_COLOUR}"
+echo
 
-invalid_job_url() {
-  echo "Argument [\"$1\"] isn't a valid job url."
-}
-
-main() {
-
-  if [ $# -ne 1 ]; then
-    print_usage
-    exit 1
-  fi
-
-  if [[ "$1" =~ (https://[^\/]*)/teams/.*/pipelines/(.*)/jobs/([^\/]*)(\/.*|$) ]]; then
-    target_url=${BASH_REMATCH[1]}
-    target=$(fly targets |grep "${target_url}" | awk '{print $1}')
-    if [ -z "$target" ]; then
-      invalid_job_url "$1"
-      exit 1
-    fi
-
-    job_name="${BASH_REMATCH[3]}"
-    pipeline_name="${BASH_REMATCH[2]}"
-    fly -t "${target}" hijack -j "${pipeline_name}/${job_name}"
-  else
-    invalid_job_url "$1"
-    exit 1
-  fi
-
-}
-
-main "$@"
+fly i -u "$@"
