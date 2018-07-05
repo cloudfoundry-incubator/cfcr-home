@@ -1,5 +1,8 @@
 #!/bin/sh
 
+set -eu
+set -o pipefail
+
 command="$(basename "$0")"
 
 # Make sure dependencies are installed
@@ -8,7 +11,8 @@ command="$(basename "$0")"
 [ ! "$(command -v tmux)" ] && echo "tmux not found" && exit 1
 
 help(){
-  echo "Usage: "$command" <subcommand> [options]\n"
+  echo "Usage: $command <subcommand> [options]"
+  echo
   echo "Subcommands:"
   echo "    add  Add a github user"
   echo "    rm   Remove a github user"
@@ -19,7 +23,7 @@ help(){
 }
 
 add(){
-  gh-auth add --users "$@" --command="$(which tmux) -u attach -t pairing"
+  gh-auth add --users "$@" --command="$(command -v tmux) -u attach -t pairing"
 }
 
 rm(){
@@ -36,10 +40,9 @@ up(){
   done
 
   tmux rename-session pairing
-  tmux send-keys "ngrok tcp -region eu 22" C-m
+  tmux send-keys " ngrok tcp -region eu 22" C-m
   tmux split-window
-  sleep 2 # some delay so tunnel has time to get up
-  tmux send-keys "$command ssh" C-m
+  tmux send-keys " while ! $command ssh ; do sleep 1s ; done" C-m
 }
 
 ssh(){
@@ -48,10 +51,10 @@ ssh(){
   port=$(curl -s http://localhost:4040/api/tunnels|jq -r '.tunnels[0].public_url'| cut -d : -f3)
   ssh_command="ssh -p $port $user@$host"
   echo "$ssh_command"
-  echo "$ssh_command" |  pbcopy
+  echo "$ssh_command" | pbcopy
 }
 
-subcommand=$1
+subcommand="${1:-}"
 case $subcommand in
   '' | '-h' | '--help')
     help ;;
