@@ -29,6 +29,10 @@ if [ -f ~/.bash_aliases ]; then
   source "${HOME}/.bash_aliases"
 fi
 
+## Aliases + Autocompletion
+ln -s $(brew --prefix)/etc/bash_completion.d/kubectl $(brew --prefix)/etc/bash_completion.d/kbuectl
+ln -s $(brew --prefix)/etc/bash_completion.d/git $(brew --prefix)/etc/bash_completion.d/git
+
 ## GIT Prompt
 
 if [ -f "${brew_prefix}/opt/bash-git-prompt/share/gitprompt.sh" ]; then
