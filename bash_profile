@@ -30,8 +30,12 @@ if [ -f ~/.bash_aliases ]; then
 fi
 
 ## Aliases + Autocompletion
-ln -s $(brew --prefix)/etc/bash_completion.d/kubectl $(brew --prefix)/etc/bash_completion.d/kbuectl
-ln -s $(brew --prefix)/etc/bash_completion.d/git $(brew --prefix)/etc/bash_completion.d/git
+if [[ ! -f $(brew --prefix)/etc/bash_completion.d/kbuectl ]]; then
+  ln -s $(brew --prefix)/etc/bash_completion.d/kubectl $(brew --prefix)/etc/bash_completion.d/kbuectl
+fi
+if [[ ! -f $(brew --prefix)/etc/bash_completion.d/gti ]]; then
+  ln -s $(brew --prefix)/etc/bash_completion.d/git $(brew --prefix)/etc/bash_completion.d/gti
+fi
 
 ## GIT Prompt
 
