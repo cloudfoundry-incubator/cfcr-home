@@ -28,6 +28,7 @@ brew 'sshuttle'
 brew 'terraform'
 brew 'the_silver_searcher'
 brew 'tig'
+brew 'tmate'
 brew 'tmux'
 brew 'tree'
 brew 'universal-ctags/universal-ctags/universal-ctags', args: ['HEAD']
