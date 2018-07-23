@@ -15,7 +15,7 @@ main() {
     install_tmux_config
     update_gcloud_components
     update_luanvim
-
+    install_gem_from_ngrok
   popd > /dev/null
   echo "💾   All done. Enjoy! ⭐️"
 }
@@ -150,6 +150,10 @@ update_gcloud_components() {
     echo "Updating gcloud components"
     gcloud components update --quiet
   fi
+}
+
+install_gem_from_ngrok() {
+  gem install github-auth
 }
 
 main
