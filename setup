@@ -78,17 +78,14 @@ update_luanvim() {
   gem install neovim
 
   echo "Updating luanvim..."
-  if [[ ! -d "${HOME}/.vim" ]] ; then
-    git clone https://github.com/luan/vimfiles.git ~/.vim
+  if [[ -L ${HOME}/.config/nvim ]]; then
+    rm -rf ~/.config/nvim
   fi
-  (
-    cd "${HOME}/.vim"
-    git checkout master
-    git pull -r
-    ./update
-  )
-
-  cp vimrc.local ~/.vimrc.local
+  if [[ ! -d "${HOME}/.config/nvim" ]] ; then
+    git clone https://github.com/luan/nvim ~/.config/nvim
+  fi
+  nvim -c "UpdateRemotePlugins | PlugInstall | qa"
+  cp vimrc.local ~/.config/nvim/user/.vimrc.local
 }
 
 install_cred_alert() {
