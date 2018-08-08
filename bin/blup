@@ -65,7 +65,7 @@ export CREDHUB_CA_CERT=\$(bosh int ${state_dir}/bosh-vars.yml --path /uaa_ssl/ca
 EOF
 
   log "source ${state_dir}/bosh-env"
-  log "bosh upload-stemcell https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-trusty-go_agent"
+  log "bosh upload-stemcell https://bosh.io/d/stemcells/bosh-warden-boshlite-ubuntu-xenial-go_agent"
   log "ssh jumpbox@192.168.50.6 -i ${state_dir}/id_rsa_jumpbox"
   log "sudo route add -net 10.244.0.0/16 192.168.50.6"
   log "bosh update-cloud-config $bosh_deployment/warden/cloud-config.yml"
