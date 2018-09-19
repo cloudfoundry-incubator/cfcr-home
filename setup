@@ -9,6 +9,7 @@ main() {
     set_git_config
     set_bash_profile
     install_cred_alert
+    install_pre_push_hook
     install_local_scripts
     install_ginkgo
     install_counterfeiter
@@ -103,6 +104,10 @@ install_cred_alert() {
   else
     git clone https://github.com/pivotal-cf/git-hooks-core "$HOME/workspace/git-hooks-core"
   fi
+}
+
+install_pre_push_hook() {
+  ln -svnf "$HOME/workspace/cfcr-home/githook-disallow-master" "$HOME/workspace/git-hooks-core/pre-push.d/disallow-master"
 }
 
 install_local_scripts() {
