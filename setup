@@ -15,7 +15,7 @@ main() {
     install_counterfeiter
     install_tmux_config
     update_gcloud_components
-    update_luanvim
+    update_vim
     install_gem_from_ngrok
   popd > /dev/null
   echo "💾   All done. Enjoy! ⭐️"
@@ -83,7 +83,7 @@ update_luanvim() {
     rm -rf ~/.config/nvim
   fi
   if [[ ! -d "${HOME}/.config/nvim" ]] ; then
-    git clone https://github.com/luan/nvim ~/.config/nvim
+    git clone https://github.com/alex-slynko/nvim ~/.config/nvim
   fi
   nvim -c "UpdateRemotePlugins | PlugInstall | qa"
   cp vimrc.local ~/.config/nvim/user/.vimrc.local
