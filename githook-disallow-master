@@ -34,4 +34,14 @@ if [[ "$url" =~ "kubo-release" ]]; then
 	done
 fi
 
+if [[ "$url" =~ "kubo-deployment" ]]; then
+	while read local_ref local_sha remote_ref remote_sha
+	do
+		if [[ "$remote_ref" =~ .*\/master$ ]]; then
+			echo "Please don't push to master. If you really need to push to master use --no-verify."
+			exit 1
+		fi
+	done
+fi
+
 exit 0
