@@ -72,7 +72,7 @@ set_bash_profile() {
   fi
 }
 
-update_luanvim() {
+update_vim() {
   echo "Ensuring that we have neovim python plugins"
   pip3 install --upgrade neovim
   npm install -g neovim
@@ -85,7 +85,7 @@ update_luanvim() {
   if [[ ! -d "${HOME}/.config/nvim" ]] ; then
     git clone https://github.com/alex-slynko/nvim ~/.config/nvim
   fi
-  nvim -c "UpdateRemotePlugins | PlugInstall | qa"
+  nvim -c "UpdateRemotePlugins | PlugInstall | PlugUpdate | qa"
   cp vimrc.local ~/.config/nvim/user/.vimrc.local
 }
 
