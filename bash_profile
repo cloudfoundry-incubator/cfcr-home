@@ -34,10 +34,12 @@ fi
 if [[ ! -f $(brew --prefix)/etc/bash_completion.d/kbuectl ]]; then
   ln -fs $(brew --prefix)/etc/bash_completion.d/kubectl $(brew --prefix)/etc/bash_completion.d/kbuectl
 fi
+
 if [[ ! -f $(brew --prefix)/etc/bash_completion.d/gti ]]; then
   ln -fs $(brew --prefix)/etc/bash_completion.d/git $(brew --prefix)/etc/bash_completion.d/gti
 fi
 
+source <"(k completion bash | sed s/kubectl/k/g)"
 ## GIT Prompt
 
 if [ -f "${brew_prefix}/opt/bash-git-prompt/share/gitprompt.sh" ]; then
