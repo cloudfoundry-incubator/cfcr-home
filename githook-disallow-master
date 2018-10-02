@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # An example hook script to verify what is about to be pushed.  Called by "git
 # push" after it has checked the remote status, but before anything has been
@@ -16,25 +16,10 @@
 #
 #   <local ref> <local sha1> <remote ref> <remote sha1>
 #
-# This sample shows how to prevent push of commits where the log message starts
-# with "WIP" (work in progress).
 
-remote="$1"
 url="$2"
 
-z40=0000000000000000000000000000000000000000
-
-if [[ "$url" =~ "kubo-release" ]]; then
-	while read local_ref local_sha remote_ref remote_sha
-	do
-		if [[ "$remote_ref" =~ .*\/master$ ]]; then
-			echo "Please don't push to master. If you really need to push to master use --no-verify."
-			exit 1
-		fi
-	done
-fi
-
-if [[ "$url" =~ "kubo-deployment" ]]; then
+if [[ "$url" =~ "kubo-release" ]] || [[ "$url" =~ "kubo-deployment" ]]; then
 	while read local_ref local_sha remote_ref remote_sha
 	do
 		if [[ "$remote_ref" =~ .*\/master$ ]]; then
