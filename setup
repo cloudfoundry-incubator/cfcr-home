@@ -86,7 +86,7 @@ update_vim() {
     git clone https://github.com/alex-slynko/nvim ~/.config/nvim
   fi
   nvim -c "UpdateRemotePlugins | PlugInstall | PlugUpdate | qa"
-  cp vimrc.local ~/.config/nvim/user/.vimrc.local
+  cp after.vim ~/.config/nvim/user/after.vim
 }
 
 install_cred_alert() {
