@@ -19,10 +19,6 @@ export PATH="/usr/local/sbin:${PATH}"
 
 export CLICOLOR=1
 
-## BASH Completion
-
-source "${brew_prefix}/etc/bash_completion"
-
 ## Aliases
 
 if [ -f ~/.bash_aliases ]; then
@@ -30,16 +26,16 @@ if [ -f ~/.bash_aliases ]; then
   source "${HOME}/.bash_aliases"
 fi
 
+## BASH Completion
+
+source "${brew_prefix}/etc/bash_completion"
+
+
 ## Aliases + Autocompletion
-if [[ ! -f $(brew --prefix)/etc/bash_completion.d/kbuectl ]]; then
-  ln -fs $(brew --prefix)/etc/bash_completion.d/kubectl $(brew --prefix)/etc/bash_completion.d/kbuectl
-fi
+__git_complete gti __git_main
+complete -o default -o nospace -F __start_kubectl kbuectl
+complete -o default -o nospace -F __start_kubectl k
 
-if [[ ! -f $(brew --prefix)/etc/bash_completion.d/gti ]]; then
-  ln -fs $(brew --prefix)/etc/bash_completion.d/git $(brew --prefix)/etc/bash_completion.d/gti
-fi
-
-source <"(k completion bash | sed s/kubectl/k/g)"
 ## GIT Prompt
 
 if [ -f "${brew_prefix}/opt/bash-git-prompt/share/gitprompt.sh" ]; then
