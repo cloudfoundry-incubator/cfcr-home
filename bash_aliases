@@ -4,6 +4,7 @@ alias gingko=ginkgo
 alias vim=nvim
 alias kbuectl=kubectl
 alias gti=git
+alias vimdiff="nvim -d"
 
 ## Kubernetes
 alias k="kubectl"
