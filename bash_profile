@@ -16,6 +16,7 @@ export PATH="${HOME}/.local/bin:${PATH}"
 
 ## Export /usr/local/sbin as fix for openvpn brew link failures.
 export PATH="/usr/local/sbin:${PATH}"
+export PATH="/usr/local/opt/ruby/bin:$PATH"
 
 export CLICOLOR=1
 
