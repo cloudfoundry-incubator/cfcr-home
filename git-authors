@@ -1,22 +1,11 @@
 authors:
-  am: Akshay Mankar; amankar
-  bc: Ben Chapman; bchapman
+  kc: Katie Chapman; kchapman
   is: Iain Sproat; isproat
-  kk: Konstantinos Karampogias; karampok
-  md: Morena De Liddo; mdeliddo
-  nh: Neil Hickey; nhickey
-  os: Oleksandr Slynko; oslynko
-  th: Travis Hall; thall
-  mjh: Mark James Hender; mhender
-  ur: Urvashi Reddy; ureddy
-  nr: Nikita Rathi; nrathi
-  af: Alton Fong; altonf
-  fm: Fabio Mangione; fmangione
+  cmc: Christian McCarthy; cmccarthy
+  sh: Shane Huston; shuston
+  bn: Brendan Nolan; bnolan
 
 email:
   domain: pivotal.io
 
 email_addresses:
-  kk: konstantinos.karampogias@swisscom.com
-  th: thall@vmware.com
-  af: altonf@vmware.com
